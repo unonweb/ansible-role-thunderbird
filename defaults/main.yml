@@ -1,0 +1,19 @@
+---
+# - install by archive works well with auto-updating software
+
+thunderbird:
+  user:
+  config:
+    src:
+    tmp: /home/ansible/tmp/roles/thunderbird
+  archive:
+    state: # present, absent, reinstall
+    src: thunderbird-139.0.2.tar.xz
+    name: thunderbird
+  flatpak:
+    name: org.mozilla.Thunderbird
+    state:
+    scope: system
+  apt:
+    name: thunderbird
+    state:
