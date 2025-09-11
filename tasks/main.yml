@@ -110,23 +110,23 @@
     block:
 
     # mkdir
-    - name: Create path "{{ ansible.config.tmp }}"
+    - name: Create path "{{ thunderbird.config.tmp }}"
       ansible.builtin.file:
-        path: "{{ ansible.config.tmp }}"
+        path: "{{ thunderbird.config.tmp }}"
         mode: u=rwx,g=rwx,o=
         state: directory
     
     # sync to tmp
-    - name: Sync "{{ thunderbird.config.src }}" to "{{ ansible.config.tmp }}"
+    - name: Sync "{{ thunderbird.config.src }}" to "{{ thunderbird.config.tmp }}"
       become: false
       delegate_to: localhost
-      ansible.builtin.command: /usr/bin/rsync --recursive -e ssh {{ thunderbird.config.src }}/ ansible@{{ inventory_hostname }}:{{ ansible.config.tmp }} # /home/ansible/host/roles/thunderbird/.thunderbird
+      ansible.builtin.command: /usr/bin/rsync --recursive -e ssh {{ thunderbird.config.src }}/ ansible@{{ inventory_hostname }}:{{ thunderbird.config.tmp }} # /home/ansible/host/roles/thunderbird/.thunderbird
 
     # cp to dst
-    - name: Copy "{{ ansible.config.tmp }}" to "{{ _dst_path }}"
+    - name: Copy "{{ thunderbird.config.tmp }}" to "{{ _dst_path }}"
       become: true
       ansible.builtin.command:
-        cmd: "cp --recursive {{ ansible.config.tmp }} {{ _dst_path }}"
+        cmd: "cp --recursive {{ thunderbird.config.tmp }} {{ _dst_path }}"
     
     # chown
     - name: Set owner of "{{ _dst_path }}
