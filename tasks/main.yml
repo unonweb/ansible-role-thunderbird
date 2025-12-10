@@ -5,126 +5,92 @@
   block:
 
   # flatpak
-  - when: thunderbird.flatpak.state != None
-    block:
-
-    # checks
-    - name: Check vars
-      ansible.builtin.assert:
-        that:
-          - thunderbird.flatpak.name != None
-          - thunderbird.flatpak.scope != None
-    
-    # flatpak
-    - name: Flatpak {{ thunderbird.flatpak.name }} state {{ thunderbird.flatpak.state }}
-      become: true
-      community.general.flatpak:
-        name: "{{ thunderbird.flatpak.name }}"
-        method: "{{ thunderbird.flatpak.scope }}" 
-        state: "{{ thunderbird.flatpak.state }}"
+  - when: thunderbird_flatpak_state != None
+    name: Flatpak org.mozilla.Thunderbird -> {{ thunderbird_flatpak_state }}
+    become: true
+    community.general.flatpak:
+      name: org.mozilla.Thunderbird
+      method: "{{ thunderbird_flatpak_scope }}" 
+      state: "{{ thunderbird_flatpak_state }}"
   
   # apt
-  - when: thunderbird.apt.state != None
-    block:
-
-    # checks
-    - name: Check vars
-      ansible.builtin.assert:
-        that:
-          - thunderbird.apt.name != None
-    
-    # apt
-    - name: Apt state {{ thunderbird.apt.state }}
-      become: true
-      ansible.builtin.apt:
-        name: "{{ thunderbird.apt.name }}"
-        state: "{{ thunderbird.apt.state }}"
+  - when: thunderbird_apt_state != None
+    name: Apt thunderbird -> {{ thunderbird_apt_state }}
+    become: true
+    ansible.builtin.apt:
+      name: thunderbird
+      state: "{{ thunderbird_apt_state }}"
 
   # archive
-  - when: thunderbird.archive.state != None
+  - when: thunderbird_archive_state != None
     block:
 
     # remove archive
-    - when: 
-      - thunderbird.archive.state == "absent" or thunderbird.archive.state == "reinstall"
-      block:
-
-      # checks
-      - name: Check vars
-        ansible.builtin.assert:
-          that:
-            - thunderbird.archive.name != None
-
-      # remove archive
-      - name: Remove /opt/{{ thunderbird.archive.name }}
-        become: true
-        ansible.builtin.file:
-          path: "/opt/{{ thunderbird.archive.name }}"
-          state: absent
+    - when: thunderbird_archive_state == "absent" or thunderbird_archive_state == "reinstall"
+      name: Remove {{ thunderbird_archive_dst }}
+      become: true
+      ansible.builtin.file:
+        path: "{{ thunderbird_archive_dst }}"
+        state: absent
 
     # install archive
-    - when: thunderbird.archive.state == "present" or thunderbird.archive.state == "reinstall"
+    - when: thunderbird_archive_state == "present" or thunderbird_archive_state == "reinstall"
       block:
 
-      # check vars
-      - name: Check vars
-        ansible.builtin.assert:
-          that:
-            - thunderbird.archive.src != None
-            - thunderbird.archive.name != None
-
       # check dir
-      - name: Check if /opt/{{ thunderbird.archive.name }} already exists
+      - name: Check if {{ thunderbird_archive_dst }} already exists
         ansible.builtin.stat:
-          path: "/opt/{{ thunderbird.archive.name }}"
-        register: _registered
+          path: "{{ thunderbird_archive_dst }}"
+        register: __thunderbird_archive_dst
       
-      - when: not _registered.stat.exists
-        block:
+      # install archive
+      - when: not __thunderbird_archive_dst.stat.exists
+        name: Unarchive {{ thunderbird_archive }} to {{ thunderbird_archive_dst }} (only if dst does not exist)
+        become: true
+        ansible.builtin.unarchive:
+          src: "{{ thunderbird_archive }}"
+          dest: "/opt"
+          creates: "{{ thunderbird_archive_dst.split('/')[-1] }}" # /opt/thunderbird -> thunderbird
+          mode: o=rwx,g=,o=rx
 
-        # install archive
-        - name: Unarchive {{ thunderbird.archive.src }} to /opt/{{ thunderbird.archive.name }} (only if dst does not exist)
-          become: true
-          ansible.builtin.unarchive:
-            src: "{{ thunderbird.archive.src }}"
-            dest: "/opt"
-            creates: "{{ thunderbird.archive.name }}"
-            mode: o=rwx,g=,o=rx
-
-  # copy .thunderbird profile
+  # copy user data
   - when: 
-    - thunderbird.config.src != None
-    - thunderbird.user != None
-    vars:
-      _dir: ".thunderbird"
-      _dst_path: "/home/{{ thunderbird.user }}"
+    - thunderbird_user != None
+    - thunderbird_user_data != None
     block:
 
-    # mkdir
-    - name: Create path "{{ ansible.config.tmp }}"
+    # mkdir tmp
+    - name: Mkdir tmp path {{ thunderbird_user_data_tmp }}
       ansible.builtin.file:
-        path: "{{ ansible.config.tmp }}"
-        mode: u=rwx,g=rwx,o=
         state: directory
+        owner: ansible
+        group: ansible
+        path: "{{ thunderbird_user_data_tmp }}"
+        mode: u=rwx,g=rwx,o=
     
     # sync to tmp
-    - name: Sync "{{ thunderbird.config.src }}" to "{{ ansible.config.tmp }}"
+    - name: Sync "{{ thunderbird_user_data }}" to "{{ thunderbird_user_data_tmp }}"
       become: false
       delegate_to: localhost
-      ansible.builtin.command: /usr/bin/rsync --recursive -e ssh {{ thunderbird.config.src }}/ ansible@{{ inventory_hostname }}:{{ ansible.config.tmp }} # /home/ansible/host/roles/thunderbird/.thunderbird
+      ansible.builtin.command: /usr/bin/rsync --recursive -e ssh {{ thunderbird_user_data }}/ ansible@{{ inventory_hostname }}:{{ thunderbird_user_data_tmp }}
 
-    # cp to dst
-    - name: Copy "{{ ansible.config.tmp }}" to "{{ _dst_path }}"
-      become: true
-      ansible.builtin.command:
-        cmd: "cp --recursive {{ ansible.config.tmp }} {{ _dst_path }}"
+    # copy data (apt or archive)
+    - when: thunderbird_flatpak_state == None
+      vars:
+        __thunderbird_data_dst: "/home/{{ thunderbird_user }}/.thunderbird"
+      block:
+      
+      # cp
+      - name: Copy {{ thunderbird_user_data_tmp }} to /home/{{ thunderbird_user }}/.thunderbird
+        become: true
+        ansible.builtin.command: "cp --recursive {{ thunderbird_user_data_tmp }}/. {{ __thunderbird_data_dst }}"
     
-    # chown
-    - name: Set owner of "{{ _dst_path }}
-      become: true
-      ansible.builtin.file:
-        path: "{{ _dst_path }}/{{ _dir }}"
-        state: directory
-        recurse: true
-        owner: "{{ thunderbird.user }}"
-        group: "{{ thunderbird.user }}"
+      # chown
+      - name: Set owner of "{{ __thunderbird_data_dst }}
+        become: true
+        ansible.builtin.file:
+          state: directory
+          recurse: true
+          path: "{{ __thunderbird_data_dst }}"
+          owner: "{{ thunderbird_user }}"
+          group: "{{ thunderbird_user }}"
