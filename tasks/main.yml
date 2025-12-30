@@ -1,13 +1,4 @@
 ---
-# NOTES
-# -----
-# Migrate from pre-exisiting non-flatpak installations:
-# 
-# cp -r ~/.thunderbird ~/.var/app/org.mozilla.Thunderbird/
-# In case Thunderbird opens a new profile instead of the existing one, run:  
-# flatpak run org.mozilla.Thunderbird -P
-# then select the right profile and tick "_Use the selected profile without asking on startup_" box.
-
 - name: thunderbird role
   tags:
     - thunderbird
