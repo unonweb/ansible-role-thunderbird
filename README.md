@@ -7,9 +7,11 @@ TO DO
 NOTES
 =====
 
-## archive
+## archive installation
 
 Install with archive works well with auto-updating software
+
+- https://support.mozilla.org/en-US/kb/installing-thunderbird-linux#w_system-thunderbird-installation
 
 ## flatpak
 
