@@ -3,9 +3,9 @@ thunderbird_user:
 thunderbird_user_data:
 thunderbird_user_data_tmp: /home/ansible/tmp/thunderbird
 # archive
-thunderbird_archive: thunderbird-139.0.2.tar.xz
+thunderbird_archive: thunderbird-147.0.tar.xz
 thunderbird_archive_state: # present, absent, reinstall
-thunderbird_archive_dst: /opt/thunderbird
+thunderbird_archive_dst: /opt/thunderbird # don't change this unless you also change thunderbird.desktop
 thunderbird_archive_name: thunderbird # name in destination
 # flatpak
 thunderbird_flatpak_state:
