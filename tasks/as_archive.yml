@@ -1,0 +1,47 @@
+# remove archive
+- when: thunderbird_archive_state == "absent" or thunderbird_archive_state == "reinstall"
+  name: Remove {{ thunderbird_archive_dst }}
+  become: true
+  ansible.builtin.file:
+    path: "{{ thunderbird_archive_dst }}"
+    state: absent
+
+# install archive
+- when: thunderbird_archive_state == "present" or thunderbird_archive_state == "reinstall"
+  block:
+
+  # check dir
+  - name: Check if {{ thunderbird_archive_dst }} already exists
+    ansible.builtin.stat:
+      path: "{{ thunderbird_archive_dst }}"
+    register: __thunderbird_archive_dst
+  
+  # install archive
+  - when: not __thunderbird_archive_dst.stat.exists
+    name: Unarchive {{ thunderbird_archive }} to {{ thunderbird_archive_dst }} (only if dst does not exist)
+    become: true
+    ansible.builtin.unarchive:
+      src: "{{ thunderbird_archive }}"
+      dest: "/opt"
+      creates: "{{ thunderbird_archive_dst.split('/')[-1] }}" # /opt/thunderbird -> thunderbird
+      mode: o=rwx,g=,o=rx
+
+  # link
+  - name: Link /opt/thunderbird/thunderbird to /usr/local/bin/thunderbird
+    become: true
+    ansible.builtin.file:
+      state: link
+      src: /opt/thunderbird/thunderbird # Path of file to link to
+      dest: /usr/local/bin/thunderbird # Path to file being managed (/path/to/symlink)
+      owner: root
+      group: root
+
+  # desktop
+  - name: Copy desktop file thunderbird.desktop
+    become: true
+    ansible.builtin.copy:
+      src: thunderbird.desktop
+      dest: "/usr/share/applications/thunderbird.desktop"
+      owner: root
+      group: root
+      mode: u=rw,g=,o=r # world readable
