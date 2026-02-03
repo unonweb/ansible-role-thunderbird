@@ -23,35 +23,7 @@
 
   # archive
   - when: thunderbird_archive_state != None
-    block:
-
-    # remove archive
-    - when: thunderbird_archive_state == "absent" or thunderbird_archive_state == "reinstall"
-      name: Remove {{ thunderbird_archive_dst }}
-      become: true
-      ansible.builtin.file:
-        path: "{{ thunderbird_archive_dst }}"
-        state: absent
-
-    # install archive
-    - when: thunderbird_archive_state == "present" or thunderbird_archive_state == "reinstall"
-      block:
-
-      # check dir
-      - name: Check if {{ thunderbird_archive_dst }} already exists
-        ansible.builtin.stat:
-          path: "{{ thunderbird_archive_dst }}"
-        register: __thunderbird_archive_dst
-      
-      # install archive
-      - when: not __thunderbird_archive_dst.stat.exists
-        name: Unarchive {{ thunderbird_archive }} to {{ thunderbird_archive_dst }} (only if dst does not exist)
-        become: true
-        ansible.builtin.unarchive:
-          src: "{{ thunderbird_archive }}"
-          dest: "/opt"
-          creates: "{{ thunderbird_archive_dst.split('/')[-1] }}" # /opt/thunderbird -> thunderbird
-          mode: o=rwx,g=,o=rx
+    ansible.builtin.import_tasks: as_archive.yml
 
   # copy user data
   - when: 
@@ -86,7 +58,7 @@
         ansible.builtin.command: "cp --recursive {{ thunderbird_user_data_tmp }}/. {{ __thunderbird_data_dst }}"
     
       # chown
-      - name: Set owner of "{{ __thunderbird_data_dst }}
+      - name: Set owner of "{{ __thunderbird_data_dst }}"
         become: true
         ansible.builtin.file:
           state: directory
