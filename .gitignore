@@ -1,3 +1,2 @@
-files/
-templates/
 .ansible/
+files/*.xz
