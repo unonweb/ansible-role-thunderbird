@@ -24,7 +24,7 @@
       src: "{{ thunderbird_archive }}"
       dest: "/opt"
       creates: "{{ thunderbird_archive_dst.split('/')[-1] }}" # /opt/thunderbird -> thunderbird
-      mode: o=rwx,g=,o=rx
+      mode: u=rwx,g=,o=rx
 
   # link
   - name: Link /opt/thunderbird/thunderbird to /usr/local/bin/thunderbird
