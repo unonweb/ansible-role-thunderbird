@@ -5,64 +5,18 @@
   block:
 
   # flatpak
-  - when: thunderbird_flatpak_state != None
-    name: Flatpak org.mozilla.Thunderbird -> {{ thunderbird_flatpak_state }}
-    become: true
-    community.general.flatpak:
-      name: org.mozilla.Thunderbird
-      method: "{{ thunderbird_flatpak_scope }}" 
-      state: "{{ thunderbird_flatpak_state }}"
-  
-  # apt
-  - when: thunderbird_apt_state != None
-    name: Apt thunderbird -> {{ thunderbird_apt_state }}
-    become: true
-    ansible.builtin.apt:
-      name: thunderbird
-      state: "{{ thunderbird_apt_state }}"
+  - ansible.builtin.import_tasks: install_flatpak.yml
 
-  # archive
-  - when: thunderbird_archive_state != None
-    ansible.builtin.import_tasks: as_archive.yml
+  # apt
+  - ansible.builtin.import_tasks: install_apt.yml
+
+  # opt
+  - ansible.builtin.import_tasks: install_opt.yml
 
   # copy user data
   - when: 
     - thunderbird_user != None
     - thunderbird_user_data != None
-    block:
+    ansible.builtin.import_tasks: copy_user_data.yml
 
-    # mkdir tmp
-    - name: Mkdir tmp path {{ thunderbird_user_data_tmp }}
-      ansible.builtin.file:
-        state: directory
-        owner: ansible
-        group: ansible
-        path: "{{ thunderbird_user_data_tmp }}"
-        mode: u=rwx,g=rwx,o=
-    
-    # sync to tmp
-    - name: Sync "{{ thunderbird_user_data }}" to "{{ thunderbird_user_data_tmp }}"
-      become: false
-      delegate_to: localhost
-      ansible.builtin.command: /usr/bin/rsync --recursive -e ssh {{ thunderbird_user_data }}/ ansible@{{ inventory_hostname }}:{{ thunderbird_user_data_tmp }}
-
-    # copy data (apt or archive)
-    - when: thunderbird_flatpak_state == None
-      vars:
-        __thunderbird_data_dst: "/home/{{ thunderbird_user }}/.thunderbird"
-      block:
-      
-      # cp
-      - name: Copy {{ thunderbird_user_data_tmp }} to /home/{{ thunderbird_user }}/.thunderbird
-        become: true
-        ansible.builtin.command: "cp --recursive {{ thunderbird_user_data_tmp }}/. {{ __thunderbird_data_dst }}"
-    
-      # chown
-      - name: Set owner of "{{ __thunderbird_data_dst }}"
-        become: true
-        ansible.builtin.file:
-          state: directory
-          recurse: true
-          path: "{{ __thunderbird_data_dst }}"
-          owner: "{{ thunderbird_user }}"
-          group: "{{ thunderbird_user }}"
+   

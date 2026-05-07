@@ -1,0 +1,63 @@
+# remove
+- when: thunderbird_install_opt_state == "absent" or thunderbird_install_opt_state == "reinstall"
+  name: Remove /opt/thunderbird
+  become: true
+  ansible.builtin.file:
+    path: "/opt/thunderbird"
+    state: absent
+
+# install
+- when: thunderbird_install_opt_state == "present" or thunderbird_install_opt_state == "reinstall"
+  block:
+
+  # check dir
+  - name: Check if /opt/thunderbird already exists
+    ansible.builtin.stat:
+      path: "/opt/thunderbird"
+    register: __thunderbird_dst
+  
+  # install
+  - when: not __thunderbird_dst.stat.exists
+    block:
+    
+    # install from archive
+    - when: thunderbird_install_opt_from == "archive"
+      name: Unarchive {{ thunderbird_install_opt_archive }} to /opt/thunderbird (only if dst does not exist)
+      become: true
+      ansible.builtin.unarchive:
+        src: "{{ thunderbird_install_opt_archive }}"
+        dest: "/opt"
+        creates: thunderbird
+        mode: o=rwx,g=,o=rx
+
+    # install from url
+    - when: thunderbird_install_opt_from == "url"
+      name: Install from url to /opt/thunderbird
+      become: true
+      ansible.builtin.unarchive:
+        src: "{{ thunderbird_install_opt_url }}"
+        dest: "/opt"
+        remote_src: true
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=rx
+
+  # link
+  - name: Link /opt/thunderbird/thunderbird to /usr/local/bin/thunderbird
+    become: true
+    ansible.builtin.file:
+      state: link
+      src: /opt/thunderbird/thunderbird # Path of file to link to
+      dest: /usr/local/bin/thunderbird # Path to file being managed (/path/to/symlink)
+      owner: root
+      group: root
+
+  # desktop
+  - name: Copy desktop file thunderbird.desktop
+    become: true
+    ansible.builtin.copy:
+      src: thunderbird.desktop
+      dest: "/usr/share/applications/thunderbird.desktop"
+      owner: root
+      group: root
+      mode: u=rw,g=,o=r # world readable

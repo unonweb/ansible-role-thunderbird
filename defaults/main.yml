@@ -2,13 +2,13 @@
 thunderbird_user:
 thunderbird_user_data:
 thunderbird_user_data_tmp: /home/ansible/tmp/thunderbird
-# archive
-thunderbird_archive: thunderbird-147.0.tar.xz
-thunderbird_archive_state: # present, absent, reinstall
-thunderbird_archive_dst: /opt/thunderbird # don't change this unless you also change thunderbird.desktop
-thunderbird_archive_name: thunderbird # name in destination
+# opt
+thunderbird_install_opt_from: url
+thunderbird_install_opt_state: present # present, absent, reinstall
+thunderbird_install_opt_url: https://download.mozilla.org/?product=thunderbird-latest-SSL&os=linux64&lang=de
+thunderbird_install_opt_archive:
 # flatpak
-thunderbird_flatpak_state:
-thunderbird_flatpak_scope: system
+thunderbird_install_flatpak_state:
+thunderbird_install_flatpak_scope: system
 # apt
-thunderbird_apt_state:
+thunderbird_install_apt_state:

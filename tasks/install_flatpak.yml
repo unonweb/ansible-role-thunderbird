@@ -1,0 +1,10 @@
+---
+- when:
+  - thunderbird_install_flatpak_state != None
+  - thunderbird_install_flatpak_scope != None
+  name: Flatpak org.mozilla.thunderbird -> {{ thunderbird_install_flatpak_state }}
+  become: true
+  community.general.flatpak:
+    name: org.mozilla.thunderbird
+    method: "{{ thunderbird_install_flatpak_scope }}" 
+    state: "{{ thunderbird_install_flatpak_state }}"
