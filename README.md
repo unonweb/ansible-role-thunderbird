@@ -1,9 +1,3 @@
-TO DO
-=====
-
-- Copy user data (flatpak installation)
-
-
 NOTES
 =====
 
