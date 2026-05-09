@@ -28,7 +28,7 @@
         src: "{{ thunderbird_install_opt_archive }}"
         dest: "/opt"
         creates: thunderbird
-        mode: o=rwx,g=,o=rx
+        mode: u=rwx,g=,o=rx
 
     # install from url
     - when: thunderbird_install_opt_from == "url"
