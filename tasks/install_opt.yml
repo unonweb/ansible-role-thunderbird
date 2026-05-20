@@ -51,13 +51,3 @@
       dest: /usr/local/bin/thunderbird # Path to file being managed (/path/to/symlink)
       owner: root
       group: root
-
-  # desktop
-  - name: Copy desktop file thunderbird.desktop
-    become: true
-    ansible.builtin.copy:
-      src: thunderbird.desktop
-      dest: "/usr/share/applications/thunderbird.desktop"
-      owner: root
-      group: root
-      mode: u=rw,g=,o=r # world readable
