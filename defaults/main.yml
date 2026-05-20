@@ -12,3 +12,6 @@ thunderbird_install_flatpak_state:
 thunderbird_install_flatpak_scope: system
 # apt
 thunderbird_install_apt_state:
+# desktop
+thunderbird_desktop_src:
+thunderbird_desktop_dst: /usr/share/applications/thunderbird.desktop
