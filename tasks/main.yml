@@ -14,20 +14,9 @@
   - ansible.builtin.import_tasks: install_opt.yml
 
   # desktop
-  - when: thunderbird_desktop_src != None
-    name: Copy desktop file thunderbird.desktop
-    become: true
-    ansible.builtin.copy:
-      src: "{{ thunderbird_desktop_src }}"
-      dest: "{{ thunderbird_desktop_dst }}"
-      owner: "{{ thunderbird_user if thunderbird_desktop_dst.startswith('/home/') else 'root' }}"
-      group: "{{ thunderbird_user if thunderbird_desktop_dst.startswith('/home/') else 'root' }}"
-      mode: u=rw,g=,o=r
+  - ansible.builtin.import_tasks: desktop.yml
 
   # copy user data
-  - when: 
-    - thunderbird_user != None
-    - thunderbird_user_data != None
-    ansible.builtin.import_tasks: copy_user_data.yml
+  - ansible.builtin.import_tasks: copy_user_data.yml
 
    

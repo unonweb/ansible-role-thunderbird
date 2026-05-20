@@ -1,0 +1,29 @@
+---
+- when: thunderbird_desktop_src != None
+  block:
+
+  # set facts
+  - name: Set facts for desktop shortcut handling
+    ansible.builtin.set_fact:
+      __thunderbird_desktop_src_is_url: "{{ thunderbird_desktop_src is match('^https?://') }}"
+      # If it's a URL, save it to a temp dir; otherwise, use the local path
+      __thunderbird_desktop_final_src: "{{ '/tmp/thunderbird_downloaded.desktop' if (thunderbird_desktop_src is match('^https?://')) else thunderbird_desktop_src }}"
+
+  # download
+  - when: __thunderbird_desktop_src_is_url
+    name: Download desktop file from {{ thunderbird_desktop_src }}
+    ansible.builtin.get_url:
+      url: "{{ thunderbird_desktop_src }}"
+      dest: "{{ __thunderbird_desktop_final_src }}"
+      mode: 0644
+
+  # copy
+  - name: Copy desktop file thunderbird.desktop
+    become: true
+    ansible.builtin.copy:
+      src: "{{ __thunderbird_desktop_final_src }}"
+      dest: "{{ thunderbird_desktop_dst }}"
+      owner: "{{ thunderbird_user if thunderbird_desktop_dst.startswith('/home/') else 'root' }}"
+      group: "{{ thunderbird_user if thunderbird_desktop_dst.startswith('/home/') else 'root' }}"
+      mode: u=rw,g=,o=r
+      remote_src: "{{ __thunderbird_desktop_src_is_url }}"
