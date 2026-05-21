@@ -1,0 +1,160 @@
+---
+# make sure user exists if dst is home
+- when: thunderbird_systemd_user_dir.startswith('/home')
+  block:
+
+  # assertions
+  - name: Assertions
+    ansible.builtin.assert:
+      that:
+      - thunderbird_user != None
+
+  # check user
+  - name: Check if user exists {{ thunderbird_user }}
+    command: "getent passwd {{ thunderbird_user }}"
+    changed_when: false
+
+# copy
+- when: thunderbird_systemd_copy | length > 0
+  name: Copy user unit files {{ thunderbird_systemd_copy }}
+  become: true
+  notify: systemctl --user daemon-reload
+  loop: "{{ thunderbird_systemd_copy }}"
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ thunderbird_systemd_user_dir }}/{{ item | basename }}"
+    owner: "{{ 'root' if thunderbird_systemd_user_dir.startswith('/etc') else thunderbird_systemd_user }}"
+    group: "{{ 'root' if thunderbird_systemd_user_dir.startswith('/etc') else thunderbird_systemd_user }}"
+    mode: u=rw,g=r,o=
+
+# template
+- when: thunderbird_systemd_template | length > 0
+  name: Template user unit files {{ thunderbird_systemd_template }}
+  become: true
+  notify: systemctl --user daemon-reload
+  loop: "{{ thunderbird_systemd_template }}"
+  ansible.builtin.template:
+    src: "{{ item }}" # -> my-unit.service.j2
+    dest: "{{ thunderbird_systemd_user_dir }}/{{ item | basename | replace('.j2', '') }}" # un.machines.service.j2 -> un.machines.service
+    owner: "{{ 'root' if thunderbird_systemd_user_dir.startswith('/etc') else thunderbird_systemd_user }}"
+    group: "{{ 'root' if thunderbird_systemd_user_dir.startswith('/etc') else thunderbird_systemd_user }}"
+    mode: u=rw,g=r,o=
+
+# reset
+- when: thunderbird_systemd_reset | length > 0
+  name: Reset user unit overrides {{ thunderbird_systemd_reset }}
+  loop: "{{ thunderbird_systemd_reset }}" # -> NetworkManager.service
+  become: true
+  ansible.builtin.file:
+    path: "{{ thunderbird_systemd_user_dir }}/{{ item }}.d"
+    state: absent
+
+# overrides
+# -> NetworkManager.service.d/override.conf
+- when: thunderbird_systemd_overrides | length > 0
+  block:
+
+  # assertions
+  - name: All overrides must be placed in a directory like 'my-service.d'
+    loop: "{{ thunderbird_systemd_overrides }}"
+    ansible.builtin.assert:
+      that:
+      - (item | dirname).endswith('.d')
+
+  # mkdir overrides
+  - name: Make override directories in {{ thunderbird_systemd_user_dir }}
+    become: true
+    loop: "{{ thunderbird_systemd_overrides }}"
+    ansible.builtin.file:
+      path: "{{ thunderbird_systemd_user_dir }}/{{ item | dirname | basename }}"
+      state: directory
+      owner: "{{ 'root' if thunderbird_systemd_user_dir.startswith('/etc') else thunderbird_systemd_user }}"
+      group: "{{ 'root' if thunderbird_systemd_user_dir.startswith('/etc') else thunderbird_systemd_user }}"
+      mode: u=rwx,g=rx,o=rx
+
+  # cp overrides
+  - name: Copy systemd system unit overrides {{ thunderbird_systemd_overrides }}
+    become: true
+    notify: systemctl --user daemon-reload
+    loop: "{{ thunderbird_systemd_overrides }}"
+    ansible.builtin.copy:
+      src: "{{ item }}"
+      dest: "{{ thunderbird_systemd_user_dir }}/{{ item | dirname | basename }}/{{ item | basename }}"
+      force: true
+      owner: "{{ 'root' if thunderbird_systemd_user_dir.startswith('/etc') else thunderbird_systemd_user }}"
+      group: "{{ 'root' if thunderbird_systemd_user_dir.startswith('/etc') else thunderbird_systemd_user }}"
+      mode: u=rw,g=r,o=r
+
+# check user daemon
+- when: thunderbird_user != None
+  name: Check if systemd user instance is running
+  ansible.builtin.command: "systemctl --user is-system-running"
+  become: true
+  become_user: "{{ 'root' if thunderbird_systemd_user_dir.startswith('/etc') else thunderbird_systemd_user }}"
+  failed_when: false
+  changed_when: false
+  register: __thunderbird_systemd_user_daemon_check
+  
+# user daemon operations
+- when: __thunderbird_systemd_user_daemon_check.stdout in ['running', 'degraded', 'initializing']
+  block:
+
+  # enable
+  - when: thunderbird_systemd_enable | length > 0
+    name: systemctl --system enable {{ thunderbird_systemd_enable }}
+    become: true
+    loop: "{{ thunderbird_systemd_enable }}"
+    ansible.builtin.systemd_service:
+      scope: system
+      enabled: true
+      name: "{{ item }}"
+
+  # disable
+  - when: thunderbird_systemd_disable | length > 0
+    name: systemctl --system disable {{ thunderbird_systemd_disable }}
+    become: true
+    loop: "{{ thunderbird_systemd_disable }}"
+    ansible.builtin.systemd_service:
+      scope: system
+      enabled: false
+      name: "{{ item }}"
+
+  # start
+  - when: thunderbird_systemd_start | length > 0
+    name: systemctl --system start {{ thunderbird_systemd_start }}
+    become: true
+    loop: "{{ thunderbird_systemd_start }}"
+    ansible.builtin.systemd_service:
+      scope: system
+      state: started
+      name: "{{ item }}"
+
+  # stop
+  - when: thunderbird_systemd_stop | length > 0
+    name: systemctl --system stop {{ thunderbird_systemd_stop }}
+    become: true
+    loop: "{{ thunderbird_systemd_stop }}"
+    ansible.builtin.systemd_service:
+      scope: system
+      state: stopped
+      name: "{{ item }}"
+
+  # mask
+  - when: thunderbird_systemd_mask | length > 0
+    name: systemctl --system mask {{ thunderbird_systemd_mask }}
+    become: true
+    loop: "{{ thunderbird_systemd_mask }}"
+    ansible.builtin.systemd_service:
+      scope: system
+      masked: true
+      name: "{{ item }}"
+
+  # unmask
+  - when: thunderbird_systemd_unmask | length > 0
+    name: systemctl --system unmask {{ thunderbird_systemd_unmask }}
+    become: true
+    loop: "{{ thunderbird_systemd_unmask }}"
+    ansible.builtin.systemd_service:
+      scope: system
+      masked: false
+      name: "{{ item }}"

@@ -16,6 +16,9 @@
   # desktop
   - ansible.builtin.import_tasks: desktop.yml
 
+  # systemd user
+  - ansible.builtin.import_tasks: systemd_user.yml
+  
   # copy user data
   - ansible.builtin.import_tasks: copy_user_data.yml
 
