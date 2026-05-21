@@ -25,7 +25,7 @@
     dest: "{{ thunderbird_systemd_user_dir }}/{{ item | basename }}"
     owner: "{{ 'root' if thunderbird_systemd_user_dir.startswith('/etc') else thunderbird_systemd_user }}"
     group: "{{ 'root' if thunderbird_systemd_user_dir.startswith('/etc') else thunderbird_systemd_user }}"
-    mode: u=rw,g=r,o=
+    mode: u=rw,g=r,o=r
 
 # template
 - when: thunderbird_systemd_template | length > 0
@@ -38,7 +38,7 @@
     dest: "{{ thunderbird_systemd_user_dir }}/{{ item | basename | replace('.j2', '') }}" # un.machines.service.j2 -> un.machines.service
     owner: "{{ 'root' if thunderbird_systemd_user_dir.startswith('/etc') else thunderbird_systemd_user }}"
     group: "{{ 'root' if thunderbird_systemd_user_dir.startswith('/etc') else thunderbird_systemd_user }}"
-    mode: u=rw,g=r,o=
+    mode: u=rw,g=r,o=r
 
 # reset
 - when: thunderbird_systemd_reset | length > 0
