@@ -7,6 +7,9 @@ thunderbird_install_opt_from: url
 thunderbird_install_opt_state: present # present, absent, reinstall
 thunderbird_install_opt_url: https://download.mozilla.org/?product=thunderbird-latest-SSL&os=linux64&lang=de
 thunderbird_install_opt_archive:
+thunderbird_install_opt_dst: "/home/{{ thunderbird_user }}/opt/thunderbird"
+thunderbird_install_opt_exec: "{{ thunderbird_install_opt_dst }}/thunderbird"
+thunderbird_install_opt_link: /usr/local/bin/thunderbird
 # flatpak
 thunderbird_install_flatpak_state:
 thunderbird_install_flatpak_scope: system

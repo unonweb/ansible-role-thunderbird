@@ -17,18 +17,22 @@
     register: __thunderbird_dst
   
   # install
-  - when: not __thunderbird_dst.stat.exists
+  - when: __thunderbird_dst.stat.exists == false
     block:
     
     # install from archive
+    # only if directory does not exist
+    # important to prevent downgrades
     - when: thunderbird_install_opt_from == "archive"
-      name: Unarchive {{ thunderbird_install_opt_archive }} to /opt/thunderbird (only if dst does not exist)
+      name: Unarchive {{ thunderbird_install_opt_archive }} to {{ thunderbird_install_opt_dst }} (only if dst does not exist)
       become: true
       ansible.builtin.unarchive:
         src: "{{ thunderbird_install_opt_archive }}"
-        dest: "/opt"
+        dest: "{{ thunderbird_install_opt_dst | dirname }}"
         creates: thunderbird
         mode: u=rwx,g=,o=rx
+        owner: "{{ thunderbird_user if thunderbird_install_opt_dst.startswith('/home/') else 'root' }}"
+        group: "{{ thunderbird_user if thunderbird_install_opt_dst.startswith('/home/') else 'root' }}"
 
     # install from url
     - when: thunderbird_install_opt_from == "url"
@@ -36,18 +40,18 @@
       become: true
       ansible.builtin.unarchive:
         src: "{{ thunderbird_install_opt_url }}"
-        dest: "/opt"
+        dest: "{{ thunderbird_install_opt_dst | dirname }}"
         remote_src: true
-        owner: root
-        group: root
+        owner: "{{ thunderbird_user if thunderbird_install_opt_dst.startswith('/home/') else 'root' }}"
+        group: "{{ thunderbird_user if thunderbird_install_opt_dst.startswith('/home/') else 'root' }}"
         mode: u=rwx,g=rx,o=rx
 
   # link
-  - name: Link /opt/thunderbird/thunderbird to /usr/local/bin/thunderbird
+  - name: Link {{ thunderbird_install_opt_link }} to {{ thunderbird_install_opt_exec }}
     become: true
     ansible.builtin.file:
       state: link
-      src: /opt/thunderbird/thunderbird # Path of file to link to
-      dest: /usr/local/bin/thunderbird # Path to file being managed (/path/to/symlink)
-      owner: root
-      group: root
+      src: "{{ thunderbird_install_opt_exec }}" # Path of file to link to
+      dest: "{{ thunderbird_install_opt_link }}" # Path to file being managed (/path/to/symlink)
+      owner: "{{ thunderbird_user if thunderbird_install_opt_dst.startswith('/home/') else 'root' }}"
+      group: "{{ thunderbird_user if thunderbird_install_opt_dst.startswith('/home/') else 'root' }}"
