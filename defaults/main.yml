@@ -2,15 +2,28 @@
 thunderbird_user:
 thunderbird_user_data:
 thunderbird_user_data_tmp: /home/ansible/tmp/thunderbird
-# archive
-thunderbird_archive: thunderbird-151.0.1.tar.xz
-thunderbird_archive_state: # present, absent, reinstall
-thunderbird_archive_dst: /opt/thunderbird # don't change this unless you also change thunderbird.desktop
-thunderbird_archive_name: thunderbird # name in destination
-thunderbird_archive_exec: "{{ thunderbird_archive_dst }}/thunderbird"
-thunderbird_archive_link: /usr/local/bin/thunderbird
+# opt
+thunderbird_install_opt_from: url
+thunderbird_install_opt_state: present # present, absent, reinstall
+thunderbird_install_opt_url: https://download.mozilla.org/?product=thunderbird-latest-SSL&os=linux64&lang=de
+thunderbird_install_opt_archive:
 # flatpak
-thunderbird_flatpak_state:
-thunderbird_flatpak_scope: system
+thunderbird_install_flatpak_state:
+thunderbird_install_flatpak_scope: system
 # apt
-thunderbird_apt_state:
+thunderbird_install_apt_state:
+# desktop
+thunderbird_desktop_src:
+thunderbird_desktop_dst: /usr/share/applications/thunderbird.desktop
+# systemd (user)
+thunderbird_systemd_user_dir: /etc/systemd/user # "/home/{{ thunderbird_systemd_user }}/.config/systemd/user"
+thunderbird_systemd_copy: []
+thunderbird_systemd_template: []
+thunderbird_systemd_reset: []
+thunderbird_systemd_overrides: []
+thunderbird_systemd_start: []
+thunderbird_systemd_stop: []
+thunderbird_systemd_enable: []
+thunderbird_systemd_disable: []
+thunderbird_systemd_mask: []
+thunderbird_systemd_unmask: []

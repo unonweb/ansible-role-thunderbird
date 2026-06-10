@@ -16,7 +16,7 @@ Icon=/opt/thunderbird/chrome/icons/default/default128.png
 Categories=Application;Network;Email;
 MimeType=x-scheme-handler/mailto;application/x-xpinstall;
 StartupNotify=true
-Actions=Compose;Contacts
+Actions=Compose;Contacts;Sandbox
 
 [Desktop Action Compose]
 Name=Compose New Message
@@ -27,3 +27,7 @@ Exec=thunderbird -compose
 Name=Contacts
 Name[fr]=Carnet d'adresses
 Exec=thunderbird -addressbook
+
+[Desktop Action Sandbox]
+Name=Run with addional systemd sandbox
+Exec=systemctl --user start thunderbird-sandboxed.service

@@ -1,0 +1,98 @@
+[Unit]
+
+Description=Thunderbird [Sandboxed]
+
+[Service]
+
+Type=exec
+ExecStart=/opt/thunderbird/thunderbird
+User=%u
+Group=%g
+StandardOutput=journal
+SyslogIdentifier=%N
+
+# NAMESPACES
+# ----------
+PrivateUsers=true
+PrivateTmp=true
+PrivateIPC=true
+PrivateDevices=true
+PrivatePIDs=true
+# Breakout Prevention
+SystemCallFilter=~@mount
+#InaccessiblePaths=/dev/shm
+#SystemCallFilter=~memfd_create
+
+# ENV
+# ---
+# This sets up ephemeral memory directories for Thunderbird to use for UI cache
+# Environment=XDG_CACHE_HOME=%t/thunderbird-sandbox/.cache
+# Environment=XDG_CONFIG_HOME=%t/thunderbird-sandbox/.config
+
+# SYSTEM
+# ------
+ProtectSystem=strict
+# Block Thunderbird from executing tools in the standard system binary paths
+NoExecPaths=/usr/bin /usr/sbin /bin /sbin
+ExecPaths=/opt/thunderbird
+
+# RUN
+# ---
+ReadWritePaths=%t/wayland-0
+# Pass the global D-Bus session socket for system notifications & themes
+# Pass the Dconf settings pipeline so UI preferences load
+ReadWritePaths=%t/dconf
+# Pass the PipeWire/PulseAudio directory so sound works flawlessly
+
+# HOME
+# -----
+ProtectHome=read-only
+ReadWritePaths=%h/.thunderbird
+ReadWritePaths=%h/downloads
+# Hide sensitive data
+InaccessiblePaths=-%h/.ssh
+InaccessiblePaths=-%h/.gnupg
+InaccessiblePaths=-%h/.aws
+InaccessiblePaths=-%h/.config/gcloud
+# Hide other browser/app credentials
+InaccessiblePaths=-%h/.mozilla
+InaccessiblePaths=-%h/.config/BraveSoftware
+InaccessiblePaths=-%h/.config/google-chrome
+InaccessiblePaths=-%h/.config/Bitwarden
+# Prevent shell injection / persistence attacks
+InaccessiblePaths=-%h/.bashrc
+InaccessiblePaths=-%h/.bash_profile
+InaccessiblePaths=-%h/.zshrc
+InaccessiblePaths=-%h/.profile
+InaccessiblePaths=-%h/.config/autostart
+
+# SYSCALLS & CAPABILITIES
+# -----------------------
+ProtectKernelTunables=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectClock=true
+ProtectHostname=true
+RestrictRealtime=true
+LockPersonality=true
+KeyringMode=private
+SystemCallArchitectures=native
+RestrictSUIDSGID=true
+AmbientCapabilities=
+CapabilityBoundingSet=
+
+# RESOURCES
+# ---------
+# Hard ceiling: If TB hits 3GB, the kernel kills it to protect the host system
+MemoryMax=3G
+# Soft warning: At 2G, the kernel aggressively reclaims TB's internal caches
+MemoryHigh=2G
+# Limit Thunderbird to a maximum of 2 full CPU cores' worth of processing power
+CPUQuota=200%
+# Lower the scheduling priority so background tasks (like sync) don't stutter your mouse cursor
+Nice=10
+
+# OTHER
+# -----
+
+NoNewPrivileges=true
