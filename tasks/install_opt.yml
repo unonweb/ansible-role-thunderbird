@@ -11,9 +11,9 @@
   block:
 
   # check dir
-  - name: Check if /opt/thunderbird already exists
+  - name: Check if {{ thunderbird_install_opt_dst }}" already exists
     ansible.builtin.stat:
-      path: "/opt/thunderbird"
+      path: "{{ thunderbird_install_opt_dst }}"
     register: __thunderbird_dst
   
   # install
