@@ -1,9 +1,9 @@
 # remove
 - when: thunderbird_install_opt_state == "absent" or thunderbird_install_opt_state == "reinstall"
-  name: Remove /opt/thunderbird
+  name: Remove {{ thunderbird_install_opt_dst }}
   become: true
   ansible.builtin.file:
-    path: "/opt/thunderbird"
+    path: "{{ thunderbird_install_opt_dst }}"
     state: absent
 
 # install
@@ -36,7 +36,7 @@
 
     # install from url
     - when: thunderbird_install_opt_from == "url"
-      name: Install from url to /opt/thunderbird
+      name: Install from url to {{ thunderbird_install_opt_dst }}
       become: true
       ansible.builtin.unarchive:
         src: "{{ thunderbird_install_opt_url }}"
