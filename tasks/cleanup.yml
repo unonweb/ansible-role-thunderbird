@@ -1,0 +1,7 @@
+---
+- name: Cleanup - Remove /opt/thunderbird
+  when: thunderbird_cleanup_remove_system_opt_installation == true
+  become: true
+  ansible.builtin.file:
+    path: /opt/thunderbird
+    state: absent

@@ -22,4 +22,5 @@
   # copy user data
   - ansible.builtin.import_tasks: copy_user_data.yml
 
-   
+  # cleanup
+  - ansible.builtin.import_tasks: cleanup.yml
