@@ -30,3 +30,5 @@ thunderbird_systemd_enable: []
 thunderbird_systemd_disable: []
 thunderbird_systemd_mask: []
 thunderbird_systemd_unmask: []
+# cleanup
+thunderbird_cleanup_remove_system_opt_installation: false
