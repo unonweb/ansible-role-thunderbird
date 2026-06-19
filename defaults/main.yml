@@ -16,7 +16,7 @@ thunderbird_install_flatpak_scope: system
 # apt
 thunderbird_install_apt_state:
 # desktop
-thunderbird_desktop_src:
+thunderbird_desktop_src: desktop/thunderbird.desktop.j2
 thunderbird_desktop_dst: /usr/share/applications/thunderbird.desktop
 # systemd (user)
 thunderbird_systemd_user_dir: /etc/systemd/user # "/home/{{ thunderbird_systemd_user }}/.config/systemd/user"
