@@ -12,6 +12,7 @@
 
   # check dir
   - name: Check if {{ thunderbird_install_opt_dst }}" already exists
+    become: true
     ansible.builtin.stat:
       path: "{{ thunderbird_install_opt_dst }}"
     register: __thunderbird_dst
