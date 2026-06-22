@@ -3,3 +3,4 @@ files/*.xz
 files/msgFilterRules.dat.technik@franzk.net
 files/msgFilterRules.dat.udo.nonner@franzk.net
 tasks/_archive/desktop.yml
+templates/filter-rules.spamassasin
