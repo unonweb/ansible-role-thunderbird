@@ -3,7 +3,7 @@
   block:
 
   # template
-  - name: Template desktop file thunderbird.desktop
+  - name: Template desktop file to {{ thunderbird_desktop_dst }}
     become: true
     ansible.builtin.template:
       src: "{{ thunderbird_desktop_src }}"
