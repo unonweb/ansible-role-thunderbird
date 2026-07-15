@@ -2,7 +2,9 @@
 thunderbird_user:
 thunderbird_user_data:
 thunderbird_user_data_tmp: /home/ansible/tmp/thunderbird
-# opt
+
+# INSTALL OPT
+# ===========
 thunderbird_install_opt_from: url
 thunderbird_install_opt_state: present # present, absent, reinstall
 thunderbird_install_opt_url: https://download.mozilla.org/?product=thunderbird-latest-SSL&os=linux64&lang=de
@@ -10,15 +12,24 @@ thunderbird_install_opt_archive:
 thunderbird_install_opt_dst: "/home/{{ thunderbird_user }}/opt/thunderbird"
 thunderbird_install_opt_exec: "{{ thunderbird_install_opt_dst }}/thunderbird"
 thunderbird_install_opt_link: /usr/local/bin/thunderbird
-# flatpak
+
+# INSTALL FLATPAK
+# ===============
 thunderbird_install_flatpak_state:
 thunderbird_install_flatpak_scope: system
-# apt
+
+# INSTALL APT
+# ===========
 thunderbird_install_apt_state:
-# desktop
+
+# DESKTOP
+# =======
 thunderbird_desktop_src: desktop/thunderbird.desktop.j2
-thunderbird_desktop_dst: /usr/share/applications/thunderbird.desktop
-# systemd (user)
+thunderbird_desktop_dst: "{{ '/home/' + thunderbird_user + '/.local/share/applications/thunderbird.desktop' if thunderbird_user != None else '/usr/share/applications/thunderbird.desktop' }}"
+
+# SYSTEMD
+# =======
+# (user)
 thunderbird_systemd_user_dir: /etc/systemd/user # "/home/{{ thunderbird_systemd_user }}/.config/systemd/user"
 thunderbird_systemd_copy: []
 thunderbird_systemd_template: []
@@ -30,5 +41,7 @@ thunderbird_systemd_enable: []
 thunderbird_systemd_disable: []
 thunderbird_systemd_mask: []
 thunderbird_systemd_unmask: []
-# cleanup
+
+# CLEANUP
+# =======
 thunderbird_cleanup_remove_system_opt_installation: false
