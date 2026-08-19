@@ -3,11 +3,11 @@
   block:
 
   # mkdir
-  - name: Mkdir {{ thunderbird_desktop_src }}
+  - name: Mkdir {{ thunderbird_desktop_dst }}
     become: true
     ansible.builtin.file:
       state: directory
-      path: "{{ thunderbird_desktop_src }}"
+      path: "{{ thunderbird_desktop_dst }}"
       owner: "{{ thunderbird_user if thunderbird_desktop_src.startswith('/home/') else 'root'}}"
       group: "{{ thunderbird_user if thunderbird_desktop_src.startswith('/home/') else 'root'}}"
       mode: u=rw,g=r,o=r
