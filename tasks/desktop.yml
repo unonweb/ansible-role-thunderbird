@@ -3,7 +3,7 @@
   block:
 
   # mkdir
-  - name: Mkdir {{ thunderbird_desktop_dst }}
+  - name: Mkdir {{ thunderbird_desktop_dst | dirname }}
     become: true
     ansible.builtin.file:
       state: directory
