@@ -21,6 +21,16 @@
   - when: __thunderbird_dst.stat.exists == false
     block:
     
+    # mkdir
+    - name: Mkdir {{ thunderbird_install_opt_dst | dirname }}
+      become: true
+      ansible.builtin.file:
+        state: directory
+        owner: "{{ thunderbird_user if thunderbird_install_opt_dst.startswith('/home/') else 'root' }}"
+        group: "{{ thunderbird_user if thunderbird_install_opt_dst.startswith('/home/') else 'root' }}"
+        path: "{{ thunderbird_install_opt_dst | dirname }}"
+        mode: "{{ 'u=rwx,g=,o=' if thunderbird_install_opt_dst.startswith('/home/') else 'u=rwx,g=,o=rx' }}"
+
     # install from archive
     # only if directory does not exist
     # important to prevent downgrades
@@ -31,7 +41,7 @@
         src: "{{ thunderbird_install_opt_archive }}"
         dest: "{{ thunderbird_install_opt_dst | dirname }}"
         creates: thunderbird
-        mode: u=rwx,g=,o=rx
+        mode: "{{ 'u=rwx,g=,o=' if thunderbird_install_opt_dst.startswith('/home/') else 'u=rwx,g=,o=rx' }}"
         owner: "{{ thunderbird_user if thunderbird_install_opt_dst.startswith('/home/') else 'root' }}"
         group: "{{ thunderbird_user if thunderbird_install_opt_dst.startswith('/home/') else 'root' }}"
 
