@@ -7,7 +7,7 @@
     become: true
     ansible.builtin.file:
       state: directory
-      path: "{{ thunderbird_desktop_dst }}"
+      path: "{{ thunderbird_desktop_dst | dirname }}"
       owner: "{{ thunderbird_user if thunderbird_desktop_src.startswith('/home/') else 'root'}}"
       group: "{{ thunderbird_user if thunderbird_desktop_src.startswith('/home/') else 'root'}}"
       mode: u=rw,g=r,o=r
