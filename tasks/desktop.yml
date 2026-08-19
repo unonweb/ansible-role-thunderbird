@@ -2,6 +2,16 @@
 - when: thunderbird_desktop_src != None
   block:
 
+  # mkdir
+  - name: Mkdir {{ thunderbird_desktop_src }}
+    become: true
+    ansible.builtin.file:
+      state: directory
+      path: "{{ thunderbird_desktop_src }}"
+      owner: "{{ thunderbird_user if thunderbird_desktop_src.startswith('/home/') else 'root'}}"
+      group: "{{ thunderbird_user if thunderbird_desktop_src.startswith('/home/') else 'root'}}"
+      mode: u=rw,g=r,o=r
+
   # template
   - name: Template desktop file to {{ thunderbird_desktop_dst }}
     become: true
