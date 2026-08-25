@@ -10,7 +10,7 @@
       path: "{{ thunderbird_desktop_dst | dirname }}"
       owner: "{{ thunderbird_user if thunderbird_desktop_dst.startswith('/home/') else 'root'}}"
       group: "{{ thunderbird_user if thunderbird_desktop_dst.startswith('/home/') else 'root'}}"
-      mode: u=rw,g=r,o=r
+      mode: u=rwx,g=r,o=r
 
   # template
   - name: Template desktop file to {{ thunderbird_desktop_dst }}
