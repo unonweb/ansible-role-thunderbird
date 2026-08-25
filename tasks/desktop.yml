@@ -15,6 +15,7 @@
   # template
   - name: Template desktop file to {{ thunderbird_desktop_dst }}
     become: true
+    notify: update-desktop-database
     ansible.builtin.template:
       src: "{{ thunderbird_desktop_src }}"
       dest: "{{ thunderbird_desktop_dst }}"

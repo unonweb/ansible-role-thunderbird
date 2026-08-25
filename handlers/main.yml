@@ -14,3 +14,7 @@
   when: 
     - __systemd_unit_user_daemon_check.stdout is defined
     - __systemd_unit_user_daemon_check.stdout in ['running', 'degraded', 'initializing']
+
+- name: update-desktop-database
+  become: true
+  ansible.builtin.command: "update-desktop-database {{ thunderbird_desktop_dst | dirname }}"
