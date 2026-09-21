@@ -1,5 +1,6 @@
 ---
-- when: 
+- tags: [thunderbird-copy-user-data]
+  when: 
   - thunderbird_user != None
   - thunderbird_user_data != None
   block:

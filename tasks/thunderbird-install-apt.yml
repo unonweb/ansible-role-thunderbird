@@ -1,0 +1,11 @@
+---
+- tags: [thunderbird-install-apt]
+  when: thunderbird_install_apt_state != None
+  block:
+    
+  # apt
+  - name: Apt thunderbird -> {{ thunderbird_install_apt_state }}
+    become: true
+    ansible.builtin.apt:
+      name: thunderbird
+      state: "{{ thunderbird_install_apt_state }}"

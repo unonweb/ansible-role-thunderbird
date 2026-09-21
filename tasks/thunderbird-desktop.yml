@@ -1,5 +1,6 @@
 ---
-- when: thunderbird_desktop_src != None
+- tags: [thunderbird-desktop]
+  when: when: thunderbird_desktop_src != None
   block:
 
   # mkdir

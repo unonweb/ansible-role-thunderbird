@@ -5,22 +5,22 @@
   block:
 
   # flatpak
-  - ansible.builtin.import_tasks: install_flatpak.yml
+  - ansible.builtin.import_tasks: thunderbird-install-flatpak.yml
 
   # apt
-  - ansible.builtin.import_tasks: install_apt.yml
+  - ansible.builtin.import_tasks: thunderbird-install-apt.yml
 
   # opt
-  - ansible.builtin.import_tasks: install_opt.yml
+  - ansible.builtin.import_tasks: thunderbird-install-opt.yml
 
   # desktop
-  - ansible.builtin.import_tasks: desktop.yml
+  - ansible.builtin.import_tasks: thunderbird-desktop.yml
 
   # systemd user
-  - ansible.builtin.import_tasks: systemd_user.yml
+  - ansible.builtin.import_tasks: thunderbird-systemd-user.yml
   
   # copy user data
-  - ansible.builtin.import_tasks: copy_user_data.yml
+  - ansible.builtin.import_tasks: thunderbird-copy-user-data.yml
 
   # cleanup
-  - ansible.builtin.import_tasks: cleanup.yml
+  - ansible.builtin.import_tasks: thunderbird-cleanup.yml
