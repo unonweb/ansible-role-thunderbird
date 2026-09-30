@@ -1,0 +1,10 @@
+---
+- tags: [role-thunderbird-cleanup]
+  when: thunderbird_cleanup_remove_system_opt_installation == true
+  block:
+    
+  - name: Cleanup - Remove /opt/thunderbird
+    become: true
+    ansible.builtin.file:
+      path: /opt/thunderbird
+      state: absent
