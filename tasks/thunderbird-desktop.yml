@@ -3,9 +3,20 @@
   when: thunderbird_desktop_src != None
   block:
 
-  # template
-  - name: Template desktop file thunderbird.desktop
+  # mkdir
+  - name: Mkdir {{ thunderbird_desktop_dst | dirname }}
     become: true
+    ansible.builtin.file:
+      state: directory
+      path: "{{ thunderbird_desktop_dst | dirname }}"
+      owner: "{{ thunderbird_user if thunderbird_desktop_dst.startswith('/home/') else 'root'}}"
+      group: "{{ thunderbird_user if thunderbird_desktop_dst.startswith('/home/') else 'root'}}"
+      mode: u=rwx,g=r,o=r
+
+  # template
+  - name: Template desktop file to {{ thunderbird_desktop_dst }}
+    become: true
+    notify: update-desktop-database
     ansible.builtin.template:
       src: "{{ thunderbird_desktop_src }}"
       dest: "{{ thunderbird_desktop_dst }}"

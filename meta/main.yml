@@ -1,6 +1,5 @@
 ---
 dependencies: []
-
 galaxy_info:
   author: Udo Nonner
   description: Setup Thunderbird on Debian Linux
@@ -10,18 +9,15 @@ galaxy_info:
     - name: Debian
       versions:
         - trixie
-
 argument_specs:
   main:
     options:
-
       thunderbird_install_opt_from:
         required: true
         type: str
         choices:
         - archive
         - url
-
       thunderbird_install_opt_state:
         type: str
         required: true
@@ -29,11 +25,9 @@ argument_specs:
         - present
         - absent
         - reinstall
-      
       thunderbird_install_opt_url:
         type: str
         required: false
-
       thunderbird_install_flatpak_scope:
         type: str
         required: true
